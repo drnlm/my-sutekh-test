@@ -95,12 +95,14 @@ class BasePluginManager:
         """Load list of Plugin Classes from plugin dir."""
         for sPluginName in sorted(submodules(aPlugins)):
             # load module
-            # pylint: disable=invalid-name
+            # pylint: disable=invalid-name, broad-except
             # mPlugin is legal name here
+            # We want all the exceptions, as plugin errors should
+            # not cause the main program to fail
             try:
                 mPlugin = __import__("%s.%s" % (self.sPluginDir, sPluginName),
                                      None, None, [aPlugins])
-            except ImportError as oExp:
+            except Exception as oExp:
                 logging.warning("Failed to load plugin %s (%s).",
                                 sPluginName, oExp, exc_info=1)
                 continue
