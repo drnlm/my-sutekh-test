@@ -162,14 +162,14 @@ else:
     ])
 
 
-# Copy in ssl certs from msys2 installation
+# Import ssl for the ssl hook
 import ssl
-ssl_paths = ssl.get_default_verify_paths()
-build_exe_options['include_files'].append(
-    (ssl_paths.openssl_cafile, os.path.join('etc', 'ssl', 'cert.pem')))
-if os.path.exists(ssl_paths.openssl_capath):
-    build_exe_options['include_files'].append(
-        (ssl_paths.openssl_capath, os.path.join('etc', 'ssl', 'certs')))
+#ssl_paths = ssl.get_default_verify_paths()
+#build_exe_options['include_files'].append(
+#    (ssl_paths.openssl_cafile, os.path.join('etc', 'ssl', 'cert.pem')))
+#if os.path.exists(ssl_paths.openssl_capath):
+#    build_exe_options['include_files'].append(
+#        (ssl_paths.openssl_capath, os.path.join('etc', 'ssl', 'certs')))
 
 
 # The logic here is a bit fincky - on MacOS we need to use the shell script to
