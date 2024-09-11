@@ -42,6 +42,7 @@ build_exe_options = {
              os.path.join('sutekh', 'docs', 'html_docs')),
          ('artwork', 'artwork'),
     ],
+    'include_resources': [],
     # Includes doesn't include all the files, so we need to use packages for
     # the plugins
     'packages': ['gi', 'cairo', 'sutekh.base.gui.plugins', 'sutekh.gui.plugins'],
@@ -164,9 +165,9 @@ else:
 
 # Import ssl for the ssl hook
 import ssl
-#ssl_paths = ssl.get_default_verify_paths()
-#build_exe_options['include_files'].append(
-#    (ssl_paths.openssl_cafile, os.path.join('etc', 'ssl', 'cert.pem')))
+ssl_paths = ssl.get_default_verify_paths()
+build_exe_options['include_resources'].append(
+    (ssl_paths.openssl_cafile, os.path.join('cert.pem')))
 #if os.path.exists(ssl_paths.openssl_capath):
 #    build_exe_options['include_files'].append(
 #        (ssl_paths.openssl_capath, os.path.join('etc', 'ssl', 'certs')))
