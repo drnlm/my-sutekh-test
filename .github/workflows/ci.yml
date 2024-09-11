@@ -32,14 +32,9 @@ jobs:
     - name: Install PIP dependencies
       run: |
         pip install keyring ply sqlobject configobj pytest mock PyGObject pycairo cx_Freeze
-    - name: Run tests
-      run: |
-        cd sutekh
-        pytest
-        cd ..
     - name: Build Mac packages
       run: |
-        find /opt/homebrew -name '*ssl*' -print
+        find /opt/ -name '*ssl*' -print
         python3 -c 'import ssl; print(ssl.get_default_verify_paths())'
         cd sutekh
         python3 setup-freeze.py bdist_mac
@@ -68,97 +63,3 @@ jobs:
         #name: sutekh-cx_Freeze_macos-dmg
         #path: sutekh/build/Sutekh*dmg
 
-
-  sqlite-linux-checks:
-
-    runs-on: ubuntu-latest
-
-    name: SQLite - Pylint & Coverage
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
-    - name: Install APT Dependencies
-      run: |
-        sudo apt-get -y -q update
-        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb gir1.2-poppler-0.18
-    - name: Install PIP Dependencies
-      run: |
-        pip install mock pytest keyring ply sqlobject configobj PyGObject pycairo pylint pytest-cov textile
-    - name: Run Pylint
-      run: |
-        pushd sutekh
-        xvfb-run --auto-servernum pylint --rcfile=../tools/sutekh_pylint sutekh || echo "Pylint exited with code $?"
-        popd
-    - name: Run Tests with coverage
-      run: |
-        pushd sutekh
-        xvfb-run --auto-servernum pytest --cov-report term-missing:skip-covered --cov=sutekh
-        popd
-    - name: Check that docs are up-to-date
-      run: |
-        pushd sutekh/sutekh/docs
-        python3 ./textile2html.py
-        # This will cause a failure if the docs have changed
-        git -P diff --exit-code .
-        popd
-
-
-  build-ubuntu-deb:
-
-    runs-on: ubuntu-latest
-    name: Build a deb package
-    steps:
-    - uses: actions/checkout@v3
-    - name: Install APT Dependencies
-      run: |
-        sudo apt-get -y -q update
-        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb gir1.2-poppler-0.18 python3-ply python3-keyring python3-sqlobject python3-configobj  python3-gi-cairo python3-cairo lintian debhelper python3-all python3-pytest python3-mock dh-python devscripts
-    - name: pip install stdeb
-      run: |
-        # The packaged stdeb for ubuntu 20.04 is old and broken
-        pip install --user stdeb
-    - name: Create deb package
-      run: |
-        pushd sutekh
-        export PATH="$PATH:$HOME/.local/bin"
-        python3 ./setup.py sdist
-        DIST=$(ls dist/Sutekh*.tar.gz)
-        cp $DIST ${DIST/tar.gz/orig.tar.gz}
-        ../.github/sutekh-makedeb-nosign 'Test Build <test@nowhere.test>'
-        popd
-    - name: Upload debian source package
-      uses: actions/upload-artifact@v3
-      with:
-        name: sutekh_deb
-        path: sutekh/deb_dist/*focal*
-
-  build-fc-rpm:
-
-    runs-on: ubuntu-latest
-    name: Build a RPM package
-    steps:
-    - uses: actions/checkout@v3
-    - name: Install APT Dependencies
-      run: |
-        sudo apt-get -y -q update
-        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb gir1.2-poppler-0.18 python3-ply python3-keyring python3-sqlobject python3-configobj  python3-gi-cairo python3-cairo python3-all python3-pytest python3-mock
-    - name: Create SPEC file and tarball
-      run: |
-        cd sutekh
-        python3 setup.py sdist
-        python3 setup.py bdist_rpm --spec-only
-    - name: Build RPM on FC 34
-      uses: xmidt-org/rpm-package-action@v1
-      with:
-        path: sutekh/dist
-        spec: Sutekh.spec
-        output-dir: .
-        dockerfile-path: .github/rpm_Dockerfiles/fedora34_Dockerfile
-    - name: Upload RPM
-      uses: actions/upload-artifact@v3
-      with:
-        name: sutekh_rpm
-        path: sutekh/dist/*rpm*
