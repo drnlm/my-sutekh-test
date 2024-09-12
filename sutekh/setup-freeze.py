@@ -164,7 +164,7 @@ else:
 
 # Import ssl for the ssl hook
 import ssl
-import certifi[
+import certifi
 ssl_paths = ssl.get_default_verify_paths()
 build_exe_options['include_files'].append(
     (certifi.where(), os.path.join('cert.pem')))
