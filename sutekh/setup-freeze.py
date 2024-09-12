@@ -167,7 +167,7 @@ import ssl
 import certifi
 ssl_paths = ssl.get_default_verify_paths()
 build_exe_options['include_files'].append(
-    (certifi.where(), os.path.join('cert.pem')))
+    (certifi.where(), os.path.join('etc', 'ssl', 'cert.pem')))
 #if os.path.exists(ssl_paths.openssl_capath):
 #    build_exe_options['include_files'].append(
 #        (ssl_paths.openssl_capath, os.path.join('etc', 'ssl', 'certs')))
