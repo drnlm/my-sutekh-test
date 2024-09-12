@@ -34,7 +34,7 @@ jobs:
         pip install keyring ply sqlobject configobj pytest mock PyGObject pycairo cx_Freeze
     - name: Debug info
       run: |
-        find / -name '*jaraco*' -print
+        find /System/Volumes/Data/usr/ -name '*jaraco*' -print
 
     - name: Build Mac packages
       run: |
