@@ -34,7 +34,7 @@ jobs:
         pip install keyring ply sqlobject configobj pytest mock PyGObject pycairo cx_Freeze
     - name: Build Mac packages
       run: |
-        find /opt/ -name '*ssl*' -print
+        ls -l /Library/Frameworks/Python.framework/Versions/3.12/etc/openssl/cert.pem
         python3 -c 'import ssl; print(ssl.get_default_verify_paths())'
         cd sutekh
         python3 setup-freeze.py bdist_mac
