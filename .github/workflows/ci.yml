@@ -314,7 +314,7 @@ jobs:
       run: |
         mkdir $HOME/stdebve
         python3 -m venv --system-site-packages $HOME/stdebve
-        . $HOME/.local/stdebve/activate
+        . $HOME/stdebve/activate
         # The packaged stdeb for ubuntu 20.04 is old and broken
         pip install --user stdeb
         deactivate
