@@ -314,13 +314,13 @@ jobs:
       run: |
         mkdir $HOME/stdebve
         python3 -m venv --system-site-packages $HOME/stdebve
-        . $HOME/stdebve/activate
+        . $HOME/stdebve/bin/activate
         # The packaged stdeb for ubuntu 20.04 is old and broken
         pip install --user stdeb
         deactivate
     - name: Create deb package
       run: |
-        . $HOME/stdebve/activate
+        . $HOME/stdebve/bin/activate
         pushd sutekh
         python3 ./setup.py sdist
         DIST=$(ls dist/Sutekh*.tar.gz)
