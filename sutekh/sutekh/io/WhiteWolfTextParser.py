@@ -738,6 +738,10 @@ class CardDict(dict):
         """Create a physical card for each expansion."""
         self._oMaker.make_physical_card(oCard, None)
         for oExp in {oRarity.expansion for oRarity in oCard.rarity}:
+            if oExp.name == 'Fifth Edition':
+                # We don't create a default printing for Fifth Edition,
+                # beacuse not every card is printed with each ankh
+                continue
             oPrinting = self._oMaker.make_default_printing(oExp)
             self._oMaker.make_physical_card(oCard, oPrinting)
 
