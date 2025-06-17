@@ -55,7 +55,7 @@ Expansions,DM,Danse Macabre
 Expansions,FB,First Blood
 Expansions,NB,New Blood
 Expansions,V5,Fifth Edition
-Expansions,V5A,Fifth Edition: Anarchs
+Expansions,V5A,Fifth Edition
 Expansions,SP,Black Chantry
 Expansions,Anarchs Unbound (Kickstarter Edition),Anarchs Unbound (Kickstarter Edition)
 Expansions,The Unaligned (Kickstarter Edition),The Unaligned (Kickstarter Edition)
@@ -1309,6 +1309,29 @@ TEST_EXP_INFO = """
     "None": {
       "date": "2008-08-10",
       "back": "VtES"
+    }
+  },
+  "V5": {
+    "Camarilla Ankh": {
+      "date": "2020-11-30",
+      "back": "Black Chantry",
+      "cards": [
+         "Pentex™ Subversion",
+         "Govern the Unaligned",
+         "Deflection",
+         "Eyes of Argus",
+         "Wake with Evening's Freshness",
+         "Deep Song"
+      ]
+    },
+    "Anarchs Ankh": {
+      "date": "2021-12-01",
+      "back": "Black Chantry",
+      "cards": [
+         "Bait and Switch",
+         "Deep Song",
+         "Theo Bell (Group 6)"
+      ]
     }
   }
 }
