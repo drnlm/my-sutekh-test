@@ -24,6 +24,8 @@ gi.require_version('PangoCairo', '1.0')
 # GObject and Pango, but we need to import Gtk first for this to work
 from gi.repository import Gtk, Gdk
 
+from sqlobject import SQLObjectNotFound
+
 from ..core.BaseAdapters import (IAbstractCard, IPhysicalCard, IExpansion,
                                  IPrinting)
 # pylint: enable=wrong-import-position
@@ -33,12 +35,31 @@ def make_card(sCardName, sExpName, sPrinting=None):
     """Create a Physical card given the name and expansion.
 
        Handle None for the expansion name properly"""
+    oAbs = IAbstractCard(sCardName)
     if sExpName:
+        oPrinting = None
         oExp = IExpansion(sExpName)
-        oPrinting = IPrinting((oExp, sPrinting))
+        try:
+            oPrinting = IPrinting((oExp, sPrinting))
+        except SQLObjectNotFound as err:
+            if not sPrinting:
+                # Handle the case where there is no default printing
+                # We search for a printing with the card, since we
+                # can't assume which printing it is in.
+                for oP in oExp.printings:
+                    try:
+                        oCard = IPhysicalCard((oAbs, oP))
+                        oPrinting = oP
+                        break
+                    except SQLObjectNotFound:
+                        pass
+                if not oPrinting:
+                    raise
+            else:
+                # We were given an invalid printing, so this is an error
+                raise
     else:
         oPrinting = None
-    oAbs = IAbstractCard(sCardName)
     oCard = IPhysicalCard((oAbs, oPrinting))
     return oCard
 
