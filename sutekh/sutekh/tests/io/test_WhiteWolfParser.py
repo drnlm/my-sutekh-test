@@ -239,10 +239,15 @@ class WhiteWolfParserTests(SutekhTest):
         for oAbs in AbstractCard.select():
             aExps = [oPair.expansion for oPair in oAbs.rarity]
             for oExp in aExps:
-                try:
-                    oPrint = IPrinting((oExp, None))
-                    _oPair = IPhysicalCard((oAbs, oPrint))
-                except SQLObjectNotFound:  # pragma: no cover
+                bFound = False
+                # Make sure we have at least 1 physical card from the right
+                # expansion
+                for oCandCard in oAbs.physicalCards:
+                    if oCandCard.printing:
+                        if oCandCard.printing.expansion == oExp:
+                            bFound = True
+                            break
+                if not bFound:
                     # We don't except to hit this during testing.
                     self.fail(f"Missing physical card {oAbs.name}"
                               f" from expansion {oExp.name}")
