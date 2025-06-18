@@ -12,6 +12,8 @@ from sqlobject import SQLObjectNotFound
 
 from sutekh.base.core.BaseAdapters import (IExpansion, IPrinting,
                                            IAbstractCard)
+from sutekh.base.core.BaseTables import PhysicalCard, Printing
+
 
 from sutekh.core.SutekhObjectMaker import SutekhObjectMaker
 
@@ -49,11 +51,24 @@ class ExpInfoParser:
         oPrinting.addPrintingProperty(oBackProp)
         # pylint: enable=no-member
 
+        bRemoveFromDefaultPrinting = dPrintInfo.pop('remove_from_default', False)
+
         aCards = dPrintInfo.pop('cards', [])
         # Create Physical cards for the variant cards if needed
         for sCardName in aCards:
             oAbsCard = IAbstractCard(sCardName)
             _oCard = self._oMaker.make_physical_card(oAbsCard, oPrinting)
+            if bRemoveFromDefaultPrinting:
+                oExp = oPrinting.expansion
+                for oPhysCard in oAbsCard.physicalCards:
+                    if oPhysCard.printing and oPhysCard.printing.expansion == oExp and oPhysCard.printing.name == None:
+                        oPrintID = oPhysCard.printing.id
+                        PhysicalCard.delete(oPhysCard.id)
+                        # Remove the printing if it is now empty
+                        if PhysicalCard.selectBy(printingID=oPrintID).count() == 0:
+                            Printing.delete(oPrintID)
+
+
         # Any other items in the dict get added 'as-is'
         for sKey, sValue in dPrintInfo.items():
             oProp = self._oMaker.make_printing_property(
