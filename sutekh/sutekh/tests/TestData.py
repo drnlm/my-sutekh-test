@@ -1315,6 +1315,7 @@ TEST_EXP_INFO = """
     "Camarilla Ankh": {
       "date": "2020-11-30",
       "back": "Black Chantry",
+      "remove_from_default": true,
       "cards": [
          "Pentex™ Subversion",
          "Govern the Unaligned",
@@ -1327,6 +1328,7 @@ TEST_EXP_INFO = """
     "Anarchs Ankh": {
       "date": "2021-12-01",
       "back": "Black Chantry",
+      "remove_from_default": true,
       "cards": [
          "Bait and Switch",
          "Deep Song",
