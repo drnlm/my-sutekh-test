@@ -60,6 +60,7 @@ Expansions,SP,Black Chantry
 Expansions,Anarchs Unbound (Kickstarter Edition),Anarchs Unbound (Kickstarter Edition)
 Expansions,The Unaligned (Kickstarter Edition),The Unaligned (Kickstarter Edition)
 Expansions,Danse Macabre (Kickstarter Edition),Danse Macabre (Kickstarter Edition)
+Expansions,SV5,Fifth Edition: Sabbat
 Rarities,C,Common
 Rarities,C1,Common
 Rarities,C2,Common
@@ -191,6 +192,8 @@ Disciplines,Obeah,obe
 Disciplines,OBE,obe
 Disciplines,Obfuscate,obf
 Disciplines,OBF,obf
+Disciplines,Oblivion,obl
+Disciplines,OBL,obl
 Disciplines,Obtenebration,obt
 Disciplines,OBT,obt
 Disciplines,Potence,pot
@@ -222,6 +225,10 @@ Disciplines,Vicissitude,vic
 Disciplines,VIC,vic
 Disciplines,Visceratika,vis
 Disciplines,VIS,vis
+Paths,Caine,Caine
+Paths,Cathari,Cathari
+Paths,Death and the Soul,Death and the Soul
+Paths,Power and the Inner Voice,Power and the Inner Voice
 Virtues,Defense,def
 Virtues,Innocence,inn
 Virtues,Judgment,jud
@@ -1213,6 +1220,93 @@ Discipline: Animalism
 [ANI] Frenzy. (D) Enter combat with and lock a vampire. The target vampire is considered the acting minion during that combat.
 Artist: Jeremy McHugh
 
+Name: Aaradhya, The Callous Tyrant
+[SV5:PPower1]
+Cardtype: Vampire
+Clan: Ventrue
+Path: Power and the Inner Voice
+Group: 6
+Capacity: 10
+Discipline: ANI DOM FOR POT PRE
+Sabbat cardinal: Aaradhya can unlock after performing a successful political action (even if the referendum failed). +1 bleed.
+Artist: Noora Hirvonen
+
+Name: Absolute Tyranny
+[SV5:PPower3]
+Cardtype: Action Modifier/Reaction
+Path: Power and the Inner Voice
+Cost: 1 blood
+Discipline: Potence & Presence
+Only usable during the polling step of a political action.
+[pot][pre] This vampire gets +3 votes.
+[POT][PRE] Vampires who do not follow the Path of Power and the Inner Voice get -1 vote.
+Artist: Cos Koniotis
+
+Name: Zbigniew, Hunter of Mekhet
+[SV5:PDeath1]
+Cardtype: Vampire
+Clan: Lasombra
+Path: Death and the Soul
+Group: 6
+Capacity: 5
+Discipline: aus dom tha OBL
+Sabbat.
+Artist: Ludovic Salvador
+
+Name: Ximena
+[SV5:PCathari1]
+Cardtype: Vampire
+Clan: Ministry
+Path: Cathari
+Group: 6
+Capacity: 3
+Discipline: obf pre
+Sabbat.
+Artist: Amy Wilkins
+
+Name: Wall of Filth
+[SV5:PCaine6]
+Cardtype: Combat
+Path: Caine
+Discipline: Protean/Thaumaturgy
+Only usable before range is determined.
+[pro] or [tha] Put this card on this vampire. This vampire can burn this card to prevent 2 non-aggravate
+d damage in combat. A vampire can have only one Wall of Filth.
+[PRO] or [THA] As above, but to prevent 2 damage in combat.
+Artist: Mitch Mueller
+
+Name: Üresség
+[SV5:PPower1]
+Cardtype: Vampire
+Clan: Brujah
+Path: Power and the Inner Voice
+Group: 6
+Capacity: 8
+Discipline: dom for CEL POT PRE
+Sabbat Archbishop of Budapest: While your prey has 10 or fewer pool, Üresség gets +1 vote and +1 bleed.
+Artist: Gábor Németh
+
+Name: Surapong
+[SV5:PCaine1]
+Cardtype: Vampire
+Clan: Nosferatu
+Path: Caine
+Group: 6
+Capacity: 2
+Discipline: ani
+Sabbat.
+Artist: Alan Mayoral
+
+Name: Serhat Gunde, Combat Junkie
+[SV5:PCaine1]
+Cardtype: Vampire
+Clan: Nosferatu
+Path: Caine
+Group: 6
+Capacity: 7
+Discipline: for tha ANI OBF POT
+Sabbat: Serhat gets 1 optional press each combat.
+Artist: Marta Ruiz Anguera
 """
 
 TEST_EXP_INFO = """
