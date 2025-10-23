@@ -18,7 +18,7 @@ from sutekh.base.core.BaseAdapters import (IAbstractCard, IPhysicalCard,
 from sutekh.base.core.DBUtility import CARDLIST_UPDATE_DATE, get_metadata_date
 
 from sutekh.core.SutekhAdapters import (IClan, IDisciplinePair, ISect,
-                                        ITitle, ICreed, IVirtue)
+                                        IPath, ITitle, ICreed, IVirtue)
 from sutekh.SutekhUtility import is_crypt_card, is_vampire, is_trifle
 from sutekh.tests.TestCore import SutekhTest
 
@@ -770,6 +770,16 @@ class WhiteWolfParserTests(SutekhTest):
         self.assertEqual(oPentex1.id, oPentex2.id)
         self.assertEqual(oPentex1.id, oPentex3.id)
 
+        # Test Sabbat Path
+        oWall = IAbstractCard('Wall of Filth')
+        self.assertTrue(IPath('Caine') in oWall.path)
+        self.assertTrue(IPath('Cathari') not in oWall.path)
+
+        oAaradhya = IAbstractCard('Aaradhya, The Callous Tyrant')
+        self.assertFalse(IPath('Caine') in oAaradhya.path)
+        self.assertFalse(IPath('Cathari') in oAaradhya.path)
+        self.assertTrue(IPath('Power and the Inner Voice') in oAaradhya.path)
+        self.assertTrue(ISect('Sabbat') in oAaradhya.sect)
 
     def test_card_type_checkers(self):
         """Check the various utilities for checking card type
