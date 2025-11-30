@@ -139,13 +139,12 @@ jobs:
         pushd sutekh
         python3 ./setup.py sdist
         popd
-        ls sutekh/dist/*
     - name: Upload sdist
       uses: actions/upload-artifact@v4
       if: matrix.python-version == '3.11' && matrix.ubuntu == 'ubuntu-22.04'
       with:
         name: sutekh-sdist
-        path: sutekh/dist/Sutekh*tar*
+        path: sutekh/dist/*tar*
 
 
   sqlite-win:
