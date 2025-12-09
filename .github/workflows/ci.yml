@@ -224,6 +224,8 @@ jobs:
     - name: Run tests
       run: |
         export DYLD_LIBRARY_PATH=/opt/homebrew/lib
+        which python
+        ls /opt/homebrew/lib/*glib*
         cd sutekh
         pytest
         cd ..
