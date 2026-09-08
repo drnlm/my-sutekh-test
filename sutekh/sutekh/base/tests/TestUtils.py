@@ -60,6 +60,7 @@ def create_pkg_tmp_file(sData):
     """Create a temporary file for use in package setup."""
     return create_tmp_file(None, sData)
 
+
 def _build_tree(oXMLTree, iDepth, aResult):
     """Recursively build a flat representation of an XML Tree, with
        the depth marked at each level."""
@@ -72,6 +73,12 @@ def _build_tree(oXMLTree, iDepth, aResult):
     aResult.append((iDepth, oXMLTree.tag, sText) + aAttribs)
     for oChild in oXMLTree:
         _build_tree(oChild, iDepth+1, aResult)
+
+
+def clear_gtk():
+    """Helper function to fake Gtk main loop"""
+    while Gtk.events_pending():
+        Gtk.main_iteration()
 
 
 class BaseTestCase(unittest.TestCase):
@@ -215,8 +222,8 @@ class GuiBaseTest(unittest.TestCase):
     def tearDown(self):
         """Cleanup Gtk state after test."""
         # Process pending Gtk events so cleanup completes
-        while Gtk.events_pending():
-            Gtk.main_iteration()
+        # before teardown
+        clear_gtk()
         super().tearDown()
 
 
