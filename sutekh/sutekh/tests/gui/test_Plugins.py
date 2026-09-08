@@ -21,6 +21,29 @@ from sutekh.gui.PluginManager import PluginManager
 import sutekh.gui.plugins as plugins
 
 
+aCandPlugins = sorted(submodules(plugins))
+aFailed = []
+aImported = []
+
+# pylint: disable=invalid-name
+# We use mPlugin to match the implementation
+for sPluginName in aCandPlugins:
+    try:
+        mPlugin = __import__("%s.%s" % (PluginManager.sPluginDir,
+                                        sPluginName), None, None,
+                                        [plugins])
+        aImported.append((mPlugin, sPluginName))
+    except Exception:
+        aFailed.append(sPluginName)
+        continue
+    if not hasattr(mPlugin, 'plugin'):
+        continue
+    if not hasattr(mPlugin, 'test'):
+        continue
+    # Need to hold a reference to this with the right name
+    # for test discovery
+    locals()[mPlugin.test.__name__] = mPlugin.test
+
 
 class TestPluginVersionImport(ConfigSutekhTest):
     """Class for testing version support for plugins.
@@ -29,22 +52,14 @@ class TestPluginVersionImport(ConfigSutekhTest):
 
     def test_imports(self):
 
-        aCandPlugins = sorted(submodules(plugins))
-        aFailed = []
-        aImported = []
-
-        # pylint: disable=invalid-name
-        # We use mPlugin to match the implementation
-        for sPluginName in aCandPlugins:
-            try:
-                mPlugin = __import__("%s.%s" % (PluginManager.sPluginDir,
-                                                sPluginName), None, None,
-                                                [plugins])
-                aImported.append((mPlugin, sPluginName))
-            except Exception:
-                aFailed.append(sPluginName)
-                continue
+        # This reports the result of the earlier import tests
         self.assertEqual(aFailed, [], "Failed import check")
+
+        aFailedVersions = []
+        aSeenPlugins = set()
+        aSeenTests = set()
+        aDuplicatePluginClasses = []
+        aDuplicatePluginTests = []
 
         for mPlugin, sPluginName in aImported:
             if not hasattr(mPlugin, 'plugin'):
@@ -53,5 +68,14 @@ class TestPluginVersionImport(ConfigSutekhTest):
             if not issubclass(cPlugin, PluginManager.cAppPlugin):
                 continue
             if not cPlugin.check_versions():
-                aFailed.append(sPluginName)
-        self.assertEqual(aFailed, [], "Failed version check")
+                aFailedVersion.append(sPluginName)
+            if mPlugin.plugin.__name__ in aSeenPlugins:
+                aDuplicatePluginClasses.append(mPlugin.plugin.__name__)
+            aSeenPlugins.add(mPlugin.plugin.__name__)
+            if hasattr(mPlugin, 'test'):
+                if mPlugin.test.__name__ in aSeenTests:
+                    aDuplicatePluginTests.append(mPlugin.test.__name__)
+                aSeenTests.add(mPlugin.test.__name__)
+        self.assertEqual(aFailedVersions, [], "Failed version check")
+        self.assertEqual(aDuplicatePluginClasses, [], "Duplicate plugin class names seen")
+        self.assertEqual(aDuplicatePluginTests, [], "Duplicate plugin test class names seen")
