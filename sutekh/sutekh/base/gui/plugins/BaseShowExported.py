@@ -46,6 +46,12 @@ class BaseShowExported(BasePlugin):
         oCardSet = self._get_card_set()
         if not oCardSet:
             return
+        oDlg = self._make_dialog(oCardSet)
+        oDlg.show_all()
+        oDlg.run()
+
+    def _make_dialog(self, oCardSet):
+        """Create the dialog"""
         oDlg = SutekhDialog("Exported CardSet: %s" % self.view.sSetName,
                             self.parent, Gtk.DialogFlags.DESTROY_WITH_PARENT)
         oDlg.set_default_size(700, 600)
@@ -80,8 +86,7 @@ class BaseShowExported(BasePlugin):
         oDlg.vbox.pack_start(oTable, False, True, 0)
         oDlg.add_button("_Close", Gtk.ResponseType.CLOSE)
         oDlg.connect("response", lambda oW, oR: oDlg.destroy())
-        oDlg.show_all()
-        oDlg.run()
+        return oDlg
 
     def _button_toggled(self, oBut, sName, oCardSet, oTextBuffer):
         """Handle user changing the toggle button state"""
