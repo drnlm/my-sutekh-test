@@ -33,8 +33,8 @@ for sPluginName in aCandPlugins:
                                         sPluginName), None, None,
                                         [plugins])
         aImported.append((mPlugin, sPluginName))
-    except Exception:
-        aFailed.append(sPluginName)
+    except Exception as err:
+        aFailed.append((sPluginName, err))
         continue
     if not hasattr(mPlugin, 'plugin'):
         continue
