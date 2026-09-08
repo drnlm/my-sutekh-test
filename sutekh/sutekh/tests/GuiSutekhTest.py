@@ -8,11 +8,13 @@
 import tempfile
 import os
 
+from sutekh.base.core.BaseTables import PhysicalCardSet
 from sutekh.base.tests.TestUtils import GuiBaseTest
 from sutekh.tests.TestCore import SutekhTest
 
 from sutekh.gui.SutekhMainWindow import SutekhMainWindow
 from sutekh.gui.ConfigFile import ConfigFile
+
 
 
 class ConfigSutekhTest(SutekhTest):
@@ -91,3 +93,19 @@ class GuiSutekhTest(ConfigSutekhTest, GuiBaseTest):
         """Tear down Gtk framework after test run"""
         self.oWin.destroy()
         super().tearDown()
+
+
+class LoadedGuiSutekhTest(GuiSutekhTest):
+    """Base class for Sutekh tests that use the standard config and
+       My Collection setup.
+       """
+    # pylint: disable=invalid-name, too-many-public-methods
+    # setUp + tearDown names are needed by unittest,
+    #         so use their convention
+    # unittest.TestCase, so many public methods
+
+    def setUp(self):
+        """Create 'My Colelction' and load the config"""
+        super().setUp()
+        self._oMyCollection = PhysicalCardSet(name='My Collection')
+        self.oWin.setup(self.oConfig)
