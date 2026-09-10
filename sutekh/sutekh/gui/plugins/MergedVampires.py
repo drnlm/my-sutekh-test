@@ -21,6 +21,9 @@ from sutekh.core.SutekhTables import SutekhAbstractCard
 from sutekh.core.SutekhAdapters import ITitle, ISect, IDisciplinePair
 from sutekh.gui.PluginManager import SutekhPlugin
 
+from sutekh.base.tests.TestUtils import make_card
+from sutekh.tests.GuiSutekhTest import LoadedGuiSutekhTest
+
 
 class FakeTitle:
     """Fake titles not in the database"""
@@ -521,3 +524,128 @@ class MergedVampirePlugin(SutekhPlugin):
 
 
 plugin = MergedVampirePlugin
+
+
+class TestMerged(LoadedGuiSutekhTest):
+
+    def test_buttons(self):
+        """Test that buttons are shown / hidden as expected"""
+        oPane = self.oWin._oCardTextPane
+        # Select a base vampire
+        oTheoBase = make_card("Theo Bell (Group 2)", None)
+        oTheoAdv = make_card("Theo Bell (Group 2) (Advanced)", None)
+        oTheo6 = make_card("Theo Bell (Group 6)", None)
+        oPane.set_card_text('set_card_text', oTheoBase)
+        # Check that the buttons are there
+        bAdvFound = False
+        bMergedFound = False
+        for oChild in oPane.view.get_children():
+            sButText = ""
+            if hasattr(oChild, 'clicked'):
+                for oGChild in oChild.get_children():
+                    if hasattr(oGChild, 'get_text'):
+                        sButText =  oGChild.get_text()
+            if "Show Advanced" in sButText:
+                bAdvFound = True
+            if 'Show Merged' in sButText:
+                bMergedFound = True
+        self.assertTrue(bAdvFound)
+        self.assertTrue(bMergedFound)
+
+        # Repear for the advanced version
+        oPane.set_card_text('set_card_text', oTheoAdv)
+        bBaseFound = False
+        bMergedFound = False
+        for oChild in oPane.view.get_children():
+            sButText = ""
+            if hasattr(oChild, 'clicked'):
+                for oGChild in oChild.get_children():
+                    if hasattr(oGChild, 'get_text'):
+                        sButText =  oGChild.get_text()
+            if "Show Base" in sButText:
+                bBaseFound = True
+            if 'Show Merged' in sButText:
+                bMergedFound = True
+        self.assertTrue(bBaseFound)
+        self.assertTrue(bMergedFound)
+
+        # Group six version should have no buttons
+        oPane.set_card_text('set_card_text', oTheo6)
+        bBaseFound = False
+        bAdvFound = False
+        bMergedFound = False
+        for oChild in oPane.view.get_children():
+            sButText = ""
+            if hasattr(oChild, 'clicked'):
+                for oGChild in oChild.get_children():
+                    if hasattr(oGChild, 'get_text'):
+                        sButText =  oGChild.get_text()
+            if "Show Base" in sButText:
+                bBaseFound = True
+            if 'Show Merged' in sButText:
+                bMergedFound = True
+            if "Show Advanced" in sButText:
+                bAdvFound = True
+        self.assertFalse(bBaseFound)
+        self.assertFalse(bMergedFound)
+        self.assertFalse(bAdvFound)
+
+    def test_switch(self):
+        """Test that we can switch between the advanced/base vampire"""
+        oPane = self.oWin._oCardTextPane
+        # Select a base vampire
+        oTheoBase = make_card("Theo Bell (Group 2)", None)
+        oPane.set_card_text('set_card_text', oTheoBase)
+        # Find the Merge button
+        for oChild in oPane.view.get_children():
+            if hasattr(oChild, 'clicked'):
+                for oGChild in oChild.get_children():
+                    if hasattr(oGChild, 'get_text'):
+                        if 'Show Advanced' in oGChild.get_text():
+                            oChild.clicked()
+        sOutput = oPane.view.text_buffer.get_all_text()
+        # Check we have advanced text, with no base stuff
+        self.assertTrue("Theo Bell (Group 2) (Advanced)" in sOutput)
+        self.assertTrue("2 strength" in sOutput)
+        self.assertTrue("CEL" in sOutput)
+        self.assertTrue("If there are any Gehenna" in sOutput)
+        self.assertTrue("Theo may enter combat" not in sOutput)
+        # Click the base button to switch back
+        for oChild in oPane.view.get_children():
+            if hasattr(oChild, 'clicked'):
+                for oGChild in oChild.get_children():
+                    if hasattr(oGChild, 'get_text'):
+                        if 'Show Base' in oGChild.get_text():
+                            oChild.clicked()
+        sOutput = oPane.view.text_buffer.get_all_text()
+        # Check we have base text, with no advanced stuff
+        self.assertTrue("Theo Bell (Group 2) (Advanced)" not in sOutput)
+        self.assertTrue("Theo Bell (Group 2)" in sOutput)
+        self.assertTrue("1 strength" in sOutput)
+        self.assertTrue("cel" in sOutput)
+        self.assertTrue("Theo may enter combat" in sOutput)
+        self.assertTrue("If there are any Gehenna" not in sOutput)
+
+    def test_merged(self):
+        """Test the merged text is displayed"""
+        oPane = self.oWin._oCardTextPane
+        # Select a base vampire
+        oTheoBase = make_card("Theo Bell (Group 2)", None)
+        oPane.set_card_text('set_card_text', oTheoBase)
+        # Find the Merge button
+        for oChild in oPane.view.get_children():
+            if hasattr(oChild, 'clicked'):
+                for oGChild in oChild.get_children():
+                    if hasattr(oGChild, 'get_text'):
+                        if 'Show Merged' in oGChild.get_text():
+                            oChild.clicked()
+        sOutput = oPane.view.text_buffer.get_all_text()
+        # Check we have merged text & stats
+        self.assertTrue("Theo Bell (Group 2) (Merged)" in sOutput)
+        self.assertTrue("2 strength" in sOutput)
+        self.assertTrue("CEL" in sOutput)
+        self.assertTrue("Theo may enter combat" in sOutput)
+        self.assertTrue("If there are any Gehenna" in sOutput)
+
+
+test = TestMerged
