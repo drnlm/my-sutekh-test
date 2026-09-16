@@ -155,6 +155,46 @@ def get_card_names(oModel):
         oIter = oModel.iter_next(oIter)
     return aResults
 
+
+def cs_select_cards(oFrame, aCards):
+    """Find cards by name and extra levels in the frame and select them"""
+    def do_level_select(oSelection, oModel, tBase, oIter, aCards):
+        """Handle the selection logic for the current level"""
+        sVal = oModel.get_name_from_iter(oIter)
+        if sVal == oModel.sUnknownExpansion:
+            sVal = None
+        if tBase + (sVal, ) in aCards:
+            oPath = oModel.get_path(oIter)
+            oSelection.select_path(oPath)
+        return sVal
+    oModel = oFrame.view.get_model()
+    oSelection = oFrame.view.get_selection()
+    oFrame.view.expand_all()  # needed so we can select deeper entries
+    oSelection.unselect_all()
+    # Walk the model, tracking the paths we wish to select
+    oIter = oModel.get_iter_first()
+    while oIter:
+        # loop over card level nodes
+        oCardIter = oModel.iter_children(oIter)
+        while oCardIter:
+            # Loop over expansions
+            sName = do_level_select(oSelection, oModel, (), oCardIter,
+                                    aCards)
+            oSecondIter = oModel.iter_children(oCardIter)
+            while oSecondIter:
+                sSecond = do_level_select(oSelection, oModel, (sName, ),
+                                          oSecondIter, aCards)
+                oThirdIter = oModel.iter_children(oSecondIter)
+                while oThirdIter:
+                    do_level_select(oSelection, oModel, (sName, sSecond),
+                                    oThirdIter, aCards)
+                    oThirdIter = oModel.iter_next(oThirdIter)
+                oSecondIter = oModel.iter_next(oSecondIter)
+            oCardIter = oModel.iter_next(oCardIter)
+        oIter = oModel.iter_next(oIter)
+
+
+
 # Helper functions for managing model test cases
 
 

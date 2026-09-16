@@ -14,6 +14,7 @@ from sutekh.base.core.BaseAdapters import (IPhysicalCard, IAbstractCard,
                                            IPrintingName)
 from sutekh.base.core import BaseFilters
 from sutekh.base.tests.TestUtils import make_card
+from sutekh.base.tests.GuiTestUtils import cs_select_cards
 from sutekh.base.gui.BaseConfigFile import CARDSET
 from sutekh.base.gui.CardSetListModel import EXTRA_LEVEL_OPTION
 
@@ -27,43 +28,6 @@ class TestCardSetFrame(GuiSutekhTest):
 
     # pylint: disable=no-self-use
     # I prefer to have these as methods
-
-    def _select_cards(self, oFrame, aCards):
-        """Find cards by name and extra levels in the frame and select them"""
-        def do_level_select(oSelection, oModel, tBase, oIter, aCards):
-            """Handle the selection logic for the current level"""
-            sVal = oModel.get_name_from_iter(oIter)
-            if sVal == oModel.sUnknownExpansion:
-                sVal = None
-            if tBase + (sVal, ) in aCards:
-                oPath = oModel.get_path(oIter)
-                oSelection.select_path(oPath)
-            return sVal
-        oModel = oFrame.view.get_model()
-        oSelection = oFrame.view.get_selection()
-        oFrame.view.expand_all()  # needed so we can select deeper entries
-        oSelection.unselect_all()
-        # Walk the model, tracking the paths we wish to select
-        oIter = oModel.get_iter_first()
-        while oIter:
-            # loop over card level nodes
-            oCardIter = oModel.iter_children(oIter)
-            while oCardIter:
-                # Loop over expansions
-                sName = do_level_select(oSelection, oModel, (), oCardIter,
-                                        aCards)
-                oSecondIter = oModel.iter_children(oCardIter)
-                while oSecondIter:
-                    sSecond = do_level_select(oSelection, oModel, (sName, ),
-                                              oSecondIter, aCards)
-                    oThirdIter = oModel.iter_children(oSecondIter)
-                    while oThirdIter:
-                        do_level_select(oSelection, oModel, (sName, sSecond),
-                                        oThirdIter, aCards)
-                        oThirdIter = oModel.iter_next(oThirdIter)
-                    oSecondIter = oModel.iter_next(oSecondIter)
-                oCardIter = oModel.iter_next(oCardIter)
-            oIter = oModel.iter_next(oIter)
 
     def check_row(self, _oModel, oPath, _oIter, tInfo):
         """Add a row to the list if it's expanded"""
@@ -123,8 +87,8 @@ class TestCardSetFrame(GuiSutekhTest):
         # Create selection of cards from the WW card list and
         # paste it into the new card set
         oFrame = oWWList
-        self._select_cards(oFrame, [(u'AK-47', None),
-                                    (u'AK-47', u'Lords of the Night')])
+        cs_select_cards(oFrame, [(u'AK-47', None),
+                                 (u'AK-47', u'Lords of the Night')])
         self.assertEqual(oFrame.view.get_selection().count_selected_rows(), 2)
         # Copy
         oFrame.view.copy_selection()
@@ -140,8 +104,8 @@ class TestCardSetFrame(GuiSutekhTest):
         self.assertTrue(make_card(u'AK-47', u'Lords of the Night')
                         in oPCS2.cards)
         # Select cards in new card set and change numbers
-        self._select_cards(oNewFrame, [(u'AK-47', None),
-                                       (u'AK-47', u'Lords of the Night')])
+        cs_select_cards(oNewFrame, [(u'AK-47', None),
+                                    (u'AK-47', u'Lords of the Night')])
         # Generate key_press event
         oEvent = Gdk.Event()
         oEvent.type = Gdk.EventType.KEY_PRESS
@@ -164,10 +128,10 @@ class TestCardSetFrame(GuiSutekhTest):
         # Select all and delete it from the new card set
         oNewFrame.view.do_paste()
         self.assertEqual(len(oPCS2.cards), 2)
-        self._select_cards(oNewFrame, [(u'AK-47', u'Lords of the Night')])
+        cs_select_cards(oNewFrame, [(u'AK-47', u'Lords of the Night')])
         oNewFrame.view.del_selection()
         self.assertEqual(len(oPCS2.cards), 1)
-        self._select_cards(oNewFrame, [(u'AK-47', None)])
+        cs_select_cards(oNewFrame, [(u'AK-47', None)])
         oEvent.key.keyval = int(Gdk.keyval_from_name('plus'))
         oNewFrame.view.key_press(oNewFrame, oEvent.key)
         self.assertEqual(len(oPCS2.cards), 2)
@@ -180,9 +144,9 @@ class TestCardSetFrame(GuiSutekhTest):
         # set editable off
         oNewFrame.view.toggle_editable(False)
         # Verify that trying to paste the selection does nothing
-        self._select_cards(oFrame, [(u'AK-47', None),
-                                    ('Ablative Skin', 'Sabbat'),
-                                    ('Alexandra (Group 2)', 'Camarilla Edition')])
+        cs_select_cards(oFrame, [(u'AK-47', None),
+                                 ('Ablative Skin', 'Sabbat'),
+                                 ('Alexandra (Group 2)', 'Camarilla Edition')])
         oFrame.view.copy_selection()
         oNewFrame.view.do_paste()
         self.assertEqual(len(oPCS2.cards), 2)
@@ -195,8 +159,8 @@ class TestCardSetFrame(GuiSutekhTest):
                               IAbstractCard(x).name == 'Alexandra (Group 2)']), 5)
         # Tests involving the top level selection
         oFrame = oWWList
-        self._select_cards(oFrame, [(u'AK-47', ),
-                                    (u'Ablative Skin', )])
+        cs_select_cards(oFrame, [(u'AK-47', ),
+                                 (u'Ablative Skin', )])
         oFrame.view.copy_selection()
         oNewFrame.view.do_paste()
         self.assertEqual(len(oPCS2.cards), 11)
@@ -205,13 +169,12 @@ class TestCardSetFrame(GuiSutekhTest):
         self.assertEqual(len([x for x in oPCS2.cards if
                               IAbstractCard(x).name == 'AK-47']), 4)
         aCardNames = [oCard.abstractCard.name for oCard in oPCS2.cards]
-        self._select_cards(oNewFrame, [(sName, ) for sName in
-                                       aCardNames])
+        cs_select_cards(oNewFrame, [(sName, ) for sName in aCardNames])
         oNewFrame.view.del_selection()
         self.assertEqual(len(oPCS2.cards), 0)
         oFrame = oMyColl
-        self._select_cards(oFrame, [(u'AK-47', ),
-                                    (u'Ablative Skin', )])
+        cs_select_cards(oFrame, [(u'AK-47', ),
+                                 (u'Ablative Skin', )])
         oFrame.view.copy_selection()
         oNewFrame.view.do_paste()
         self.assertEqual(len(oPCS2.cards), 7)
@@ -225,9 +188,9 @@ class TestCardSetFrame(GuiSutekhTest):
         # Test involving top level and sublevel selections
         # Top level should override the sub selections, as being
         # most consitent behaviour
-        self._select_cards(oNewFrame, [(u'AK-47', ),
-                                       (u'AK-47', None),
-                                       (u'AK-47', 'Lords of the Night')])
+        cs_select_cards(oNewFrame, [(u'AK-47', ),
+                                    (u'AK-47', None),
+                                    (u'AK-47', 'Lords of the Night')])
         oEvent = Gdk.Event()
         oEvent.type = Gdk.EventType.KEY_PRESS
         oEvent.key.keyval = int(Gdk.keyval_from_name('4'))
@@ -289,8 +252,8 @@ class TestCardSetFrame(GuiSutekhTest):
                 oMyColl = oPane
         oMyColl.view.toggle_editable(True)
         # Test deleting with no filter works as expected
-        self._select_cards(oMyColl, [(u'Ghoul Retainer', ),
-                                     (u'Off Kilter', )])
+        cs_select_cards(oMyColl, [(u'Ghoul Retainer', ),
+                                  (u'Off Kilter', )])
         oEvent = Gdk.Event()
         oEvent.type = Gdk.EventType.KEY_PRESS
         oEvent.key.keyval = int(Gdk.keyval_from_name('minus'))
@@ -317,7 +280,7 @@ class TestCardSetFrame(GuiSutekhTest):
             'Jyhad (Variant Printing)')
         oMyColl.view.set_filter(oFilter)
         oMyColl.reload()
-        self._select_cards(oMyColl, [(u'Ghoul Retainer', )])
+        cs_select_cards(oMyColl, [(u'Ghoul Retainer', )])
         # Each removal should remove 1 card
         for iExpected in range(11, 8, -1):
             oMyColl.view.key_press(oMyColl, oEvent.key)
@@ -331,7 +294,7 @@ class TestCardSetFrame(GuiSutekhTest):
         oFilter = BaseFilters.PhysicalExpansionFilter('Heirs to the Blood')
         oMyColl.view.set_filter(oFilter)
         oMyColl.reload()
-        self._select_cards(oMyColl, [(u'Off Kilter', )])
+        cs_select_cards(oMyColl, [(u'Off Kilter', )])
         for iExpected in range(8, 1, -1):
             oMyColl.view.key_press(oMyColl, oEvent.key)
             self.assertEqual(len(oColl.cards), iExpected)
@@ -411,8 +374,8 @@ class TestCardSetFrame(GuiSutekhTest):
         oTest2 = PhysicalCardSet(name='Test Set 2')
         oCS2Frame = self.oWin.add_new_physical_card_set('Test Set 2', True)
         # Select 2 cards and paste them
-        self._select_cards(oMyColl, [(u'AK-47', ),
-                                     (u'Ablative Skin', )])
+        cs_select_cards(oMyColl, [(u'AK-47', ),
+                                  (u'Ablative Skin', )])
         oMyColl.view.copy_selection()
         oCS2Frame.view.do_paste()
         # 3 x AK + 6 x Ablative
@@ -429,9 +392,9 @@ class TestCardSetFrame(GuiSutekhTest):
         self.oConfig.set_profile_option(CARDSET, "test",
                                         EXTRA_LEVEL_OPTION, "expansions")
         self.oWin.do_all_queued_reloads()
-        self._select_cards(oMyColl, [(u'AK-47', u'Lords of the Night'),
-                                     (u'Ablative Skin', ),
-                                     (u'Alexandra (Group 2)', u'Camarilla Edition')])
+        cs_select_cards(oMyColl, [(u'AK-47', u'Lords of the Night'),
+                                  (u'Ablative Skin', ),
+                                  (u'Alexandra (Group 2)', u'Camarilla Edition')])
         oMyColl.view.copy_selection()
         oCS2Frame.view.do_paste()
         # 2 x AK + 6 x Ablative + 5 x Alexandra
@@ -447,9 +410,9 @@ class TestCardSetFrame(GuiSutekhTest):
                                         EXTRA_LEVEL_OPTION, "card sets")
         self.oWin.do_all_queued_reloads()
         oMyColl.view.get_model().load()
-        self._select_cards(oMyColl, [(u'AK-47', u'Test Set 1'),
-                                     (u'Ablative Skin', ),
-                                     (u'Alexandra (Group 2)', u'Test Set 1')])
+        cs_select_cards(oMyColl, [(u'AK-47', u'Test Set 1'),
+                                  (u'Ablative Skin', ),
+                                  (u'Alexandra (Group 2)', u'Test Set 1')])
         oMyColl.view.copy_selection()
         oCS2Frame.view.do_paste()
         # 5 x AK + 6 x Ablative + 3 x Alexandra
@@ -466,10 +429,9 @@ class TestCardSetFrame(GuiSutekhTest):
                                         EXTRA_LEVEL_OPTION,
                                         "card sets then expansions")
         self.oWin.do_all_queued_reloads()
-        self._select_cards(oMyColl, [(u'AK-47', u'Test Set 1',
-                                      u'Lords of the Night'),
-                                     (u'Ablative Skin', ),
-                                     (u'Alexandra (Group 2)', u'Test Set 1')])
+        cs_select_cards(oMyColl, [(u'AK-47', u'Test Set 1', u'Lords of the Night'),
+                                  (u'Ablative Skin', ),
+                                  (u'Alexandra (Group 2)', u'Test Set 1')])
         oMyColl.view.copy_selection()
         oCS2Frame.view.do_paste()
         # 3 x AK + 6 x Ablative + 3 x Alexandra
@@ -486,10 +448,10 @@ class TestCardSetFrame(GuiSutekhTest):
                                         EXTRA_LEVEL_OPTION,
                                         "expansions then card sets")
         self.oWin.do_all_queued_reloads()
-        self._select_cards(oMyColl, [(u'AK-47', u'Lords of the Night'),
-                                     (u'Ablative Skin', ),
-                                     (u'Alexandra (Group 2)', u'Camarilla Edition',
-                                      u'Test Set 1')])
+        cs_select_cards(oMyColl, [(u'AK-47', u'Lords of the Night'),
+                                  (u'Ablative Skin', ),
+                                  (u'Alexandra (Group 2)', u'Camarilla Edition',
+                                   u'Test Set 1')])
         oMyColl.view.copy_selection()
         oCS2Frame.view.do_paste()
         # 2 x AK + 6 x Ablative + 3 x Alexandra
