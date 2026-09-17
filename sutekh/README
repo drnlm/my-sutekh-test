@@ -8,17 +8,16 @@ The Python modules required are:
 
 * SQLObject [ https://pypi.org/project/sqlobject/, version 0.9.0
   or later]
-* singledispatch [ https://pypi.org/project/singledispatch/ ]
 * PLY (for parsing the query language) [ https://pypi.org/project/ply/ ]
 * sqlite (or the module for whatever database one plans to use)
-* PyGtk (for the GUI) [ https://pypi.org/project/pygtk/ ]
+* Python Gobject Introspection bindings - https://download.gnome.org/sources/pygobject/
 * librsvg2 for the sutekh icon
 * configobj to manage the config file [ https://pypi.org/project/configobj/ ]
 
 Sutekh can download the official cardlist and rulings. If you have limited
-connectivity, you will need to download the official cardlist from
+connectivity, you will need to download the Sutekh data zipfile from
 
-* http://www.vekn.net/images/stories/downloads/cardlist.txt
+* https://bitbucket.org/hodgestar/sutekh-datapack/raw/master/Cardlist/SutekhCardlist.zip
 
 to a local file and use that.
 
@@ -115,11 +114,9 @@ Using the mingw64 bit enviroment, use pip to install the other dependencies
  * SQLObject
  * confiobj
  * ply
- * keyring
 
 To runnt the tests, you will also need to install
  * pytest
- * mock
 
 Run easy_install <Sutekh Egg File>.
 
@@ -138,7 +135,6 @@ You will need to install the following homebrew packages
   - adwaita-icon-theme (or some other suitable icon theme)
 
 The remaining required packages should be installed using pip3
-  - keyring
   - ply
   - sqlobject
   - configobj
