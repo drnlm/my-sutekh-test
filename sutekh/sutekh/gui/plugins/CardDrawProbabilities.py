@@ -13,6 +13,12 @@ from sutekh.base.core.BaseAdapters import IAbstractCard
 from sutekh.base.gui.SutekhDialog import do_complaint_error
 from sutekh.base.gui.plugins.BaseDrawProbabilities import BaseDrawProbPlugin
 
+from mock import patch
+from sutekh.base.core.BaseTables import PhysicalCardSet
+from sutekh.base.tests.GuiTestUtils import cs_select_cards
+from sutekh.tests.GuiSutekhTest import LoadedGuiSutekhTest
+from sutekh.tests.core.test_PhysicalCardSet import make_set_1
+
 
 class CardDrawSimPlugin(SutekhPlugin, BaseDrawProbPlugin):
     """Displays the probabilities for drawing cards from the current
@@ -136,3 +142,97 @@ class CardDrawSimPlugin(SutekhPlugin, BaseDrawProbPlugin):
 
 
 plugin = CardDrawSimPlugin
+
+
+
+class TestCardDrawSim(LoadedGuiSutekhTest):
+
+    def setUp(self):
+        super().setUp()
+        self._oPhysSet = make_set_1()
+        self.oWin.add_new_physical_card_set(self._oPhysSet.name)
+
+
+    def test_check_selected(self):
+        oPane = self.oWin.find_cs_pane_by_set_name(self._oPhysSet.name)[0]
+        oPlugin = CardDrawSimPlugin(oPane.view, oPane.view.get_model(), PhysicalCardSet)
+        # Check that _check_selection fails when both crypt and library cards are selected
+        with patch(f'{__name__}.do_complaint_error'):
+            cs_select_cards(oPane, [('.44 Magnum', 'Jyhad'),
+                                    ('The Siamese (Group 2)', 'Bloodlines')])
+            aSelectedCards = oPlugin._get_selected_abs_cards()
+            self.assertEqual(len(aSelectedCards), 2)
+            bRes = oPlugin._check_selection(aSelectedCards)
+            self.assertFalse(bRes)
+        # Check that 2 library cards are OK
+        with patch(f'{__name__}.do_complaint_error'):
+            cs_select_cards(oPane, [('.44 Magnum', 'Jyhad'),
+                                    ('Hide the Heart', 'Heirs to the Blood')])
+            aSelectedCards = oPlugin._get_selected_abs_cards()
+            self.assertEqual(len(aSelectedCards), 2)
+            bRes = oPlugin._check_selection(aSelectedCards)
+            self.assertTrue(bRes)
+            self.assertFalse(oPlugin.bCrypt)
+        # Check that 2 crypt cards are OK
+        with patch(f'{__name__}.do_complaint_error'):
+            cs_select_cards(oPane, [('Abebe (Group 4)', None),
+                                    ('The Siamese (Group 2)', 'Bloodlines')])
+            aSelectedCards = oPlugin._get_selected_abs_cards()
+            self.assertEqual(len(aSelectedCards), 2)
+            bRes = oPlugin._check_selection(aSelectedCards)
+            self.assertTrue(bRes)
+            self.assertTrue(oPlugin.bCrypt)
+
+    def test_output(self):
+        oPane = self.oWin.find_cs_pane_by_set_name(self._oPhysSet.name)[0]
+        oPlugin = CardDrawSimPlugin(oPane.view, oPane.view.get_model(), PhysicalCardSet)
+        # Select cards
+        cs_select_cards(oPane, [('.44 Magnum', ),
+                                ('Hide the Heart', ),
+                                ('Immortal Grapple', )])
+
+        # Do the steps needed for tests
+        aSelectedCards = oPlugin._get_selected_abs_cards()
+
+        bRes = oPlugin._check_selection(aSelectedCards)
+        oPlugin._setup_cardlists(aSelectedCards)
+
+        oLabel = Gtk.Label()
+        oPlugin._set_draw_title_and_size(oLabel)
+
+        oPlugin._set_initial_values()
+
+        oDlg = oPlugin._make_dialog(oLabel)
+        oPlugin._fill_table(None)
+
+        oBuffer = None
+        aRadioButtons = []
+        oDlg.show_all()
+        aTableText = []
+        # Get all the table text
+        # We don't preserve the structure of the table well here,
+        # since we just getting the children
+        # FIXME: When we replace Gtk.Table with Gtk.Grid, we can
+        # do better here
+        for oChild in oPlugin.oResultsTable.get_children():
+            if hasattr(oChild, 'get_text'):
+                aTableText.append(oChild.get_text())
+
+        # Find some of the expected card combos
+        self.assertIn("1 × Immortal Grapple\n1 × .44 Magnum\n1 × Hide the Heart\n", aTableText)
+        self.assertIn("3 × Immortal Grapple\n0 × .44 Magnum\n0 × Hide the Heart\n", aTableText)
+        self.assertIn("0 × Immortal Grapple\n0 × .44 Magnum\n1 × Hide the Heart\n", aTableText)
+        self.assertIn("None of the cards", aTableText)
+        # Check some of the expected headers
+        self.assertIn("+ 7", aTableText)
+        self.assertIn("Opening Hand", aTableText)
+        self.assertIn("Number of cards seen", aTableText)
+        # Check we have all the expected entries
+        iExpected = 16*9   # 16 card combination - 9 rows for each
+        iExpected += 7 + 4 # the +1 .. + 7 labels and the 0,1,2,3 groupings
+        iExpected += 2     # The 'Opening Hand ' & 'Count' labels
+        iExpected += 2     # The 'Cards Drawn' & 'Number Seen' labels
+        self.assertEqual(len(aTableText), iExpected)
+
+
+test = TestCardDrawSim
