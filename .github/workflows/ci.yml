@@ -367,7 +367,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: sutekh_deb
-        path: sutekh/deb_dist/*noble*
+        path: sutekh/deb_dist/*focal*
 
   build-snap:
 
