@@ -34,9 +34,9 @@ jobs:
         python-version: ['3.12', '3.13']
         ubuntu: ['ubuntu-22.04']
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install APT Dependencies
@@ -84,9 +84,9 @@ jobs:
         python-version: ['3.12', '3.13']
         ubuntu: ['ubuntu-22.04']
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install APT Dependencies
@@ -116,9 +116,9 @@ jobs:
         python-version: ['3.10', '3.11', '3.12', '3.13']
         ubuntu: ['ubuntu-22.04']
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install APT Dependencies
@@ -141,7 +141,7 @@ jobs:
         python3 ./setup.py sdist
         popd
     - name: Upload sdist
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: matrix.python-version == '3.13' && matrix.ubuntu == 'ubuntu-22.04'
       with:
         name: sutekh-sdist
@@ -154,7 +154,7 @@ jobs:
     name: Windows
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Setup MSYS
       uses: msys2/setup-msys2@v2
       with:
@@ -200,7 +200,7 @@ jobs:
         cd sutekh
         ./sutekh-makensis sutekh-freeze.nsi
     - name: Upload NSIS installer
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: sutekh-cx_Freeze_windows
         path: sutekh/dist/*exe
@@ -211,9 +211,9 @@ jobs:
     # large runner that requires a paid package
     runs-on: macos-15-intel
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: '3.12'
     - name: Install brew dependencies
@@ -244,7 +244,7 @@ jobs:
         cd sutekh/build/
         tar -cf sutekh_app_intel.tar [Ss]utekh*app*
     - name: Upload cx_Freeze app directory
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: sutekh-cx_Freeze_macos-intel-app
         path: sutekh/build/sutekh_app_intel.tar
@@ -254,9 +254,9 @@ jobs:
     # We use macos-14 to get an arm runner
     runs-on: macos-14
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: '3.12'
     - name: Install brew dependencies
@@ -288,7 +288,7 @@ jobs:
         cd sutekh/build/
         tar -cf sutekh_app_arm.tar [Ss]utekh*app*
     - name: Upload cx_Freeze app directory
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: sutekh-cx_Freeze_macos-arm-app
         path: sutekh/build/sutekh_app_arm.tar
@@ -302,9 +302,9 @@ jobs:
 
     name: SQLite - Pylint & Coverage
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Python 3.13
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: '3.13'
     - name: Install APT Dependencies
@@ -340,7 +340,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: Build a deb package
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install APT Dependencies
       run: |
         sudo apt-get -y -q update
@@ -364,7 +364,7 @@ jobs:
         popd
         deactivate
     - name: Upload debian source package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: sutekh_deb
         path: sutekh/deb_dist/*noble*
@@ -373,14 +373,14 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Build snap
       id: buildsnap
       uses: snapcore/action-build@v1
       with:
         path: sutekh
     - name: Upload Snap
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: sutekh_snap
         path: ${{ steps.buildsnap.outputs.snap }}
