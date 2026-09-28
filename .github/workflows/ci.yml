@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.12', '3.13', '3.14']
-        ubuntu: ['ubuntu-22.04']
+        ubuntu: ['ubuntu-26.04']
     steps:
     - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
@@ -82,7 +82,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.12', '3.13', '3.14']
-        ubuntu: ['ubuntu-22.04']
+        ubuntu: ['ubuntu-26.04']
     steps:
     - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
@@ -114,7 +114,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
-        ubuntu: ['ubuntu-22.04']
+        ubuntu: ['ubuntu-26.04']
     steps:
     - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
@@ -134,7 +134,7 @@ jobs:
         xvfb-run --auto-servernum pytest
         popd
     - name: Build sdist
-      if: matrix.python-version == '3.13' && matrix.ubuntu == 'ubuntu-22.04'
+      if: matrix.python-version == '3.13' && matrix.ubuntu == 'ubuntu-26.04'
       run: |
         pip install setuptools
         pushd sutekh
@@ -142,7 +142,7 @@ jobs:
         popd
     - name: Upload sdist
       uses: actions/upload-artifact@v7
-      if: matrix.python-version == '3.13' && matrix.ubuntu == 'ubuntu-22.04'
+      if: matrix.python-version == '3.13' && matrix.ubuntu == 'ubuntu-26.04'
       with:
         name: sutekh-sdist
         path: sutekh/dist/*tar*
@@ -337,7 +337,7 @@ jobs:
 
   build-ubuntu-deb:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Build a deb package
     steps:
     - uses: actions/checkout@v7
