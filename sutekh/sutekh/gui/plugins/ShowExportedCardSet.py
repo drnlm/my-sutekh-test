@@ -72,6 +72,3 @@ class TestShowExported(LoadedGuiSutekhTest):
                  oBut.set_active(True)
         sText = oBuffer.get_text(oBuffer.get_start_iter(), oBuffer.get_end_iter(), False)
         self.assertEqual(sText, ARDB_EXPECTED)
-
-
-test = TestShowExported

@@ -552,7 +552,7 @@ class TestMerged(LoadedGuiSutekhTest):
         self.assertTrue(bAdvFound)
         self.assertTrue(bMergedFound)
 
-        # Repear for the advanced version
+        # Repeat for the advanced version
         oPane.set_card_text('set_card_text', oTheoAdv)
         bBaseFound = False
         bMergedFound = False
@@ -646,6 +646,3 @@ class TestMerged(LoadedGuiSutekhTest):
         self.assertTrue("CEL" in sOutput)
         self.assertTrue("Theo may enter combat" in sOutput)
         self.assertTrue("If there are any Gehenna" in sOutput)
-
-
-test = TestMerged

@@ -233,6 +233,3 @@ class TestCardDrawSim(LoadedGuiSutekhTest):
         iExpected += 2     # The 'Opening Hand ' & 'Count' labels
         iExpected += 2     # The 'Cards Drawn' & 'Number Seen' labels
         self.assertEqual(len(aTableText), iExpected)
-
-
-test = TestCardDrawSim
