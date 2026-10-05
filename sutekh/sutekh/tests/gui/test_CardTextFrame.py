@@ -7,7 +7,7 @@
 
 import unittest
 
-from sutekh.tests.GuiSutekhTest import GuiSutekhTest
+from sutekh.tests.GuiSutekhTest import LoadedGuiSutekhTest
 from sutekh.base.tests.TestUtils import make_card
 
 from sutekh.base.core.BaseTables import PhysicalCardSet
@@ -169,16 +169,13 @@ Artists:
 *\tNoora Hirvonen"""
 
 
-class TestCardTextFrame(GuiSutekhTest):
+class TestCardTextFrame(LoadedGuiSutekhTest):
     """Class for the LogViewFrame test cases"""
     # pylint: disable=too-many-public-methods
     # unittest.TestCase, so many public methods
 
     def test_basic(self):
         """Set of simple tests of the CardTextFrame"""
-        # 'My Collection' is needed for default config
-        _oMyCollection = PhysicalCardSet(name='My Collection')
-        self.oWin.setup(self.oConfig)
         # Get the card text frame
         oCardTextFrame = self.oWin._oCardTextPane
         # Card text should start empty
@@ -210,9 +207,6 @@ class TestCardTextFrame(GuiSutekhTest):
 
     def test_show_errata(self):
         """Test with 'show errata markers' set"""
-        # 'My Collection' is needed for default config
-        _oMyCollection = PhysicalCardSet(name='My Collection')
-        self.oWin.setup(self.oConfig)
         # Get the card text frame
         oCardTextFrame = self.oWin._oCardTextPane
         # Card text should start empty
