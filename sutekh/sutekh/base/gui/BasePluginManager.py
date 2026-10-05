@@ -49,6 +49,7 @@ def create_plugin(cPlugin, *args):
 
 def submodules(oPackage):
     """List all the submodules in a package."""
+    aExcluded = ('__init__', 'conftest')
     oLoader = getattr(oPackage, "__loader__", None)
     aModules = set()
 
@@ -62,7 +63,7 @@ def submodules(oPackage):
             if sFile.startswith(sPrefix):
                 sFile = sFile[len(sPrefix):]
                 oMatch = oModRe.match(sFile)
-                if oMatch and oMatch.group('mod') != '__init__':
+                if oMatch and oMatch.group('mod') not in aExcluded:
                     aModules.add(oMatch.group('mod'))
     else:
         # try the filesystem
@@ -70,7 +71,7 @@ def submodules(oPackage):
         for sModuleFile in glob.glob(os.path.join(sPackageDir, "*.py*")):
             sModule = os.path.basename(sModuleFile)
             sModule = os.path.splitext(sModule)[0]
-            if sModule != "__init__":
+            if sModule not in aExcluded:
                 aModules.add(sModule)
 
     return list(aModules)
