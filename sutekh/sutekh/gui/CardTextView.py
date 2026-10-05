@@ -69,6 +69,11 @@ class CardTextView(BaseCardTextView):
            listener."""
         self._reload_card()
 
+    def cleanup(self):
+        """Cleanup the listeners"""
+        MessageBus.unsubscribe(MessageBus.Type.CONFIG_MSG, 'show_errata_markers',
+                               self._force_reload)
+
     # pylint: disable=too-many-branches, too-many-statements
     # We need to consider all cases for oCard, so need the branches
     # and statements

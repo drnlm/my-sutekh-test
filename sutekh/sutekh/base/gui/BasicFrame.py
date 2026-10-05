@@ -207,9 +207,11 @@ class BasicFrame(Gtk.Frame):
             oPlugin.cleanup()
         # Don't hold references to the plugins
         self._aPlugins = []
-        # Cleanup after the menu if required
+        # Cleanup children if required
         if self.menu and hasattr(self.menu, 'cleanup'):
             self.menu.cleanup()
+        if self.view and hasattr(self.view, 'cleanup'):
+            self.view.cleanup()
 
     def reload(self):
         """Reload frame contents"""
