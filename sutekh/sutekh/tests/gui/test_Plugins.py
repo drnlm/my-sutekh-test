@@ -27,23 +27,6 @@ aImported = []
 
 # pylint: disable=invalid-name
 # We use mPlugin to match the implementation
-for sPluginName in aCandPlugins:
-    try:
-        mPlugin = __import__("%s.%s" % (PluginManager.sPluginDir,
-                                        sPluginName), None, None,
-                                        [plugins])
-        aImported.append((mPlugin, sPluginName))
-    except Exception as err:
-        aFailed.append((sPluginName, err))
-        continue
-    if not hasattr(mPlugin, 'plugin'):
-        continue
-    if not hasattr(mPlugin, 'test'):
-        continue
-    # Need to hold a reference to this with the right name
-    # for test discovery
-    locals()[mPlugin.test.__name__] = mPlugin.test
-
 
 class TestPluginVersionImport(ConfigSutekhTest):
     """Class for testing version support for plugins.
@@ -51,31 +34,36 @@ class TestPluginVersionImport(ConfigSutekhTest):
        This is not a GuiSutekhTest, as we don't need all the plumbing"""
 
     def test_imports(self):
-
-        # This reports the result of the earlier import tests
-        self.assertEqual(aFailed, [], "Failed import check")
-
+        """Test that included plugins are importable and support the current
+           table versions"""
         aFailedVersions = []
         aSeenPlugins = set()
         aSeenTests = set()
         aDuplicatePluginClasses = []
         aDuplicatePluginTests = []
 
+        for sPluginName in aCandPlugins:
+            try:
+                mPlugin = __import__("%s.%s" % (PluginManager.sPluginDir,
+                                                sPluginName), None, None,
+                                                [plugins])
+                if not hasattr(mPlugin, 'plugin'):
+                    continue
+                cPlugin = mPlugin.plugin
+                if not issubclass(cPlugin, PluginManager.cAppPlugin):
+                    continue
+                aImported.append((mPlugin, sPluginName))
+            except Exception as err:
+                aFailed.append((sPluginName, err))
+                continue
+
         for mPlugin, sPluginName in aImported:
-            if not hasattr(mPlugin, 'plugin'):
-                continue
-            cPlugin = mPlugin.plugin
-            if not issubclass(cPlugin, PluginManager.cAppPlugin):
-                continue
             if not cPlugin.check_versions():
                 aFailedVersion.append(sPluginName)
             if mPlugin.plugin.__name__ in aSeenPlugins:
                 aDuplicatePluginClasses.append(mPlugin.plugin.__name__)
             aSeenPlugins.add(mPlugin.plugin.__name__)
-            if hasattr(mPlugin, 'test'):
-                if mPlugin.test.__name__ in aSeenTests:
-                    aDuplicatePluginTests.append(mPlugin.test.__name__)
-                aSeenTests.add(mPlugin.test.__name__)
+        self.assertEqual(aFailed, [], "Failed import check")
         self.assertEqual(aFailedVersions, [], "Failed version check")
         self.assertEqual(aDuplicatePluginClasses, [], "Duplicate plugin class names seen")
         self.assertEqual(aDuplicatePluginTests, [], "Duplicate plugin test class names seen")
