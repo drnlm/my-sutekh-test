@@ -1,13 +1,13 @@
-For 1.2.0
+For 2.3.0
 ==========
 
- (see mailing list for the details, this is just a reminder list)
+Fix bugs
 
-Essential goals
+LONG TERM GOALS
 ---------------
 
-* Port sutekh to use pygi + gtk3 instead of pygtk - this is needed before we can port to python 3
-* Port sutekh to python 3
+* Remove all deprecated / to be replaced gtk methods
+* Port sutekh to gtk4
 
 
 Stuff that's fairly easy (we think)
@@ -15,17 +15,10 @@ Stuff that's fairly easy (we think)
 
  * pep8 cleanup
  * reduce the number of FIXME's and TODO's in the code base
- * More Error handling/reporting
-   - Include version number and other such useful info in the exception dialog
-   - Include this info in the exported logs?
  * Cluster Plugin Speed-up
  * Add more keyboard shortcuts
  * Right-click context menus
  * Write a script for tagging releases from a branch and generating release notes.
- * TWD plugin (initial version down - functionality needs improvement)
-
-Bugfixes
---------
 
 Needs planning
 --------------
@@ -39,7 +32,6 @@ Needs planning
        [ implement a plugin which can filter out what a set of crypt
          cards can play first ]
  * Real Plugin System
- * Abstract Card Editor
  * Stripped down UI for smart-phones
  * Test support for the plugins
  * Look at wrapping large-scale changes in a single transaction to speed them up
@@ -49,10 +41,14 @@ Needs planning
 For the future
 ===============
 
+* Complete separation of base and sutekh codes, so base can more easily
+  be used in other projects (Currently importing SutekhInfo into SutekhDialog
+  is a sticky point)
+
 Backend:
  * DatabaseUpgrade could be less brittle
  * Rework SutekhUtility to be less of a mess
- * Consider using SQLObject's new .throughTo method for populating / caching
+ * Consider using SQLObject's .throughTo method for populating / caching
    the objects abstract cards join to.
 
 Code Cleanup
@@ -63,29 +59,26 @@ Code Cleanup
  * Make MultiSelectCombo less evil (turn it into a proper widget?)
 
 Gui (Functionality):
- * Compare CardSet Plugin (basic version done. Could be improved)
- * Plugins for calling out to other VtES utilities as appropriate (http://ashheap.storageannex.com/utilities.htm)
+ * Plugins for calling out to other VtES utilities as appropriate
+ * Investigate krcg api for populating data / rulings / etc.
  * Convert the repeated functions in the plugins into functions in the plugin
    API
  * Improved card set sorting
    - Allow specifying order of columns to use, etc.
  * Add an undo stack for filter editing operations
- * Allow colouring options for the cards
-   (use-case for this?)
 
 Gui (Presentation):
  * Clean up the card set controller/model/view interactions
    - CardSetManagement stuff is still rather tangled
- * Parse in a GTK rc file? (http://www.moeraki.com/pygtktutorial/pygtk2tutorial/ch-GtkRcFiles.html)
-   - GTK3 does things differently - we will have to revist theming options after that port
- * Disable set_fixed_height_mode on TreeView cells so that the card text extra column
-   can be changed to render across multiple lines without breaking layout. This
-   will require some other way of dealing with the TreeView jumping bug.
-   - Hopefully much easier after the Gtk3 port
+ * Revist theming support
+ * Replace Gtk.TreeView with Gtk.ColumnView and the related stuff
+   - Need to work out custom cell renderer replacements - should
+     be simpler as these are now full Gtk widgets, but there's a bunch
+     of logic around the current CellRendererButton that will need to
+     be investigated.
 
 Other Tasks:
  * Find some users and developers interested in Sutekh on Windows.
- * Investigate building sutekh for mac - gtk3's mac suupport is better, but we need access
-   to machines for testing / building
-   - Can use cloud services (AppVeyor, etc) for mac builds, but testing / debuggin requires
-     an actual machine / VM.
+ * Find better way of testing on mac
+   - We do build and the run the tests, but that's not the same
+     as actually using it on Mac.
