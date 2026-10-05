@@ -1384,6 +1384,7 @@ class CardSetListModelTests(ConfigSutekhTest):
                           (2, 0, 'All:The Slaughterhouse'),
                           (1, 0, 'All:Walk of Flame'),
                          ])
+        cleanup_models([oModel])
 
 
 if __name__ == "__main__":
