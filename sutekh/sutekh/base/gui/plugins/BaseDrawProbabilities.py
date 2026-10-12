@@ -181,17 +181,12 @@ class BaseDrawProbPlugin(BasePlugin):
         oMainTitle = Gtk.Label()
         self._set_draw_title_and_size(oMainTitle)
 
-        # Look 15 cards into the deck by default, seems good start
-        self.iMax = min(15, self.iTotal - self.iOpeningDraw)
-        self.iDrawStep = 1  # Increments to use in table
-        self.aAllChoices = _gen_choice_list(self.dSelectedCounts)
-        self.iCardsToDraw = min(3, self.iSelectedCount)
+        self._set_inital_values()
 
         if self.iTotal <= self.iOpeningDraw:
             self._complain_size()
             return
 
-        self.oResultsTable = Gtk.Table()
         oDialog = self._make_dialog(oMainTitle)
         self._fill_table(self)
         oDialog.set_size_request(800, 600)
@@ -199,12 +194,25 @@ class BaseDrawProbPlugin(BasePlugin):
 
         oDialog.run()
 
+    def _set_initial_values(self):
+        """This is a set of what we think are sensible defaults,
+           but can be overriden if needed."""
+        # Also useful for testing
+
+        # Look 15 cards into the deck by default, seems good start
+        self.iMax = min(15, self.iTotal - self.iOpeningDraw)
+        self.iDrawStep = 1  # Increments to use in table
+        self.aAllChoices = _gen_choice_list(self.dSelectedCounts)
+        self.iCardsToDraw = min(3, self.iSelectedCount)
+
     def _make_dialog(self, oMainTitle):
         """Create the dialog box."""
         oDialog = SutekhDialog("Card Draw probablities", self.parent,
                                Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                ("_Close", Gtk.ResponseType.CLOSE))
         oDialog.connect("response", lambda oDialog, resp: oDialog.destroy())
+
+        self.oResultsTable = Gtk.Table()
 
         oWidgetBox = Gtk.HBox(False, 2)
         oNumDraws = Gtk.ComboBoxText()
