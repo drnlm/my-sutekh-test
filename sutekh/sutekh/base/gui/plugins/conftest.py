@@ -17,7 +17,7 @@ gi.require_version("Gtk", "3.0")
 # to the test list - we rely on unittest discovery to then
 # do the right thing
 @pytest.hookimpl
-def pytest_collect_file(file_path, path, parent):
+def pytest_collect_file(file_path, parent):
     if file_path.suffix == '.py' and \
             file_path.name not in ('__init__.py', 'conftest.py'):
         return pytest.Module.from_parent(parent, path=file_path)
