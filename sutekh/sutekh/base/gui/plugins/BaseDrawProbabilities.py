@@ -6,6 +6,8 @@
 """Calculate probabilities for drawing the current selection."""
 
 from copy import copy
+from unittest import TestCase
+from collections import namedtuple
 
 from gi.repository import Gtk
 
@@ -179,12 +181,17 @@ class BaseDrawProbPlugin(BasePlugin):
         oMainTitle = Gtk.Label()
         self._set_draw_title_and_size(oMainTitle)
 
-        self._set_initial_values()
+        # Look 15 cards into the deck by default, seems good start
+        self.iMax = min(15, self.iTotal - self.iOpeningDraw)
+        self.iDrawStep = 1  # Increments to use in table
+        self.aAllChoices = _gen_choice_list(self.dSelectedCounts)
+        self.iCardsToDraw = min(3, self.iSelectedCount)
 
         if self.iTotal <= self.iOpeningDraw:
             self._complain_size()
             return
 
+        self.oResultsTable = Gtk.Table()
         oDialog = self._make_dialog(oMainTitle)
         self._fill_table(self)
         oDialog.set_size_request(800, 600)
@@ -198,8 +205,6 @@ class BaseDrawProbPlugin(BasePlugin):
                                Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                ("_Close", Gtk.ResponseType.CLOSE))
         oDialog.connect("response", lambda oDialog, resp: oDialog.destroy())
-
-        self.oResultsTable = Gtk.Table()
 
         oWidgetBox = Gtk.HBox(False, 2)
         oNumDraws = Gtk.ComboBoxText()
@@ -230,16 +235,16 @@ class BaseDrawProbPlugin(BasePlugin):
 
         oRecalcButton.connect('clicked', self._fill_table)
 
-        oWidgetBox.pack_start(Gtk.Label(label='columns in table : '),
+        oWidgetBox.pack_start(Gtk.Label('columns in table : '),
                               True, True, 0)
         oWidgetBox.pack_start(oNumDraws, True, True, 0)
-        oWidgetBox.pack_start(Gtk.Label(label=' Step between columns : '),
+        oWidgetBox.pack_start(Gtk.Label(' Step between columns : '),
                               True, True, 0)
         oWidgetBox.pack_start(oStepSize, True, True, 0)
-        oWidgetBox.pack_start(Gtk.Label(label=' cards of interest : '),
+        oWidgetBox.pack_start(Gtk.Label(' cards of interest : '),
                               True, True, 0)
         oWidgetBox.pack_start(oCardToDrawCount, True, True, 0)
-        oWidgetBox.pack_start(Gtk.Label(label=' : '), True, True, 0)
+        oWidgetBox.pack_start(Gtk.Label(' : '), True, True, 0)
         oWidgetBox.pack_start(oRecalcButton, True, True, 0)
 
         oDescLabel = Gtk.Label(label="Columns are number of draws (X)\n"
@@ -257,7 +262,7 @@ class BaseDrawProbPlugin(BasePlugin):
                                "The first column represents the total "
                                "starting draw")
 
-        oTitleLabel = Gtk.Label(label='Draw results :')
+        oTitleLabel = Gtk.Label('Draw results :')
         oResultsBox = Gtk.VBox(homogeneous=False, spacing=2)
         oResultsBox.pack_start(oTitleLabel, False, False, 0)
 
@@ -265,7 +270,7 @@ class BaseDrawProbPlugin(BasePlugin):
                                True, True, 0)
 
         oDialog.vbox.pack_start(oMainTitle, False, False, 0)
-        oDialog.vbox.pack_start(Gtk.Label(label='Card Probablities'),
+        oDialog.vbox.pack_start(Gtk.Label('Card Probablities'),
                                 False, False, 0)
         oDialog.vbox.pack_start(oDescLabel, False, False, 0)
         oDialog.vbox.pack_start(oWidgetBox, False, False, 0)
@@ -306,7 +311,7 @@ class BaseDrawProbPlugin(BasePlugin):
                                       xpadding=0, ypadding=0,
                                       xoptions=Gtk.AttachOptions.FILL,
                                       yoptions=Gtk.AttachOptions.FILL)
-            oLabel = Gtk.Label(label='Count')
+            oLabel = Gtk.Label('Count')
             self.oResultsTable.attach(oLabel, 2, 3, 2, 3)
             self._setup_count_rows()
         self.oResultsTable.attach(self._get_table_draw_title(),
@@ -324,7 +329,7 @@ class BaseDrawProbPlugin(BasePlugin):
                                   xoptions=Gtk.AttachOptions.FILL,
                                   yoptions=Gtk.AttachOptions.FILL)
         for iCol in range(1, self.iNumSteps):
-            oLabel = Gtk.Label(label='+ %d' % (iCol * self.iDrawStep))
+            oLabel = Gtk.Label('+ %d' % (iCol * self.iDrawStep))
             iTableCol = 2 * iCol + 3 + iOffset
             self.oResultsTable.attach(Gtk.VSeparator(), iTableCol,
                                       iTableCol + 1, 2, iNumRows,
@@ -337,7 +342,7 @@ class BaseDrawProbPlugin(BasePlugin):
         aSelectOrder = sorted(self.dSelectedCounts.items(),
                               key=lambda x: (x[1], x[0].name), reverse=True)
         for iRow in range(iNumCardRows):
-            oLabel = Gtk.Label(label=self._gen_row_label(iRow, aSelectOrder))
+            oLabel = Gtk.Label(self._gen_row_label(iRow, aSelectOrder))
             iTableRow = 2 * iRow + 3
             self.oResultsTable.attach(Gtk.HSeparator(), 1 + iOffset,
                                       iNumCols, iTableRow, iTableRow + 1,
@@ -361,8 +366,8 @@ class BaseDrawProbPlugin(BasePlugin):
         self.oResultsTable.resize(iNumRows, iNumCols)
         self.oResultsTable.set_col_spacings(0)
         self.oResultsTable.set_row_spacings(0)
-        oTopLabel = Gtk.Label(label='Cards drawn')
-        oLeftLabel = Gtk.Label(label='Number of cards seen')
+        oTopLabel = Gtk.Label('Cards drawn')
+        oLeftLabel = Gtk.Label('Number of cards seen')
         oLeftLabel.set_angle(270)
         self.oResultsTable.attach(oTopLabel, 0, iNumCols, 0, 1)
         self.oResultsTable.attach(oLeftLabel, 0, 1, 1, iNumRows)
@@ -375,7 +380,7 @@ class BaseDrawProbPlugin(BasePlugin):
                                       iBottomRow + 1, xpadding=0, ypadding=0,
                                       xoptions=Gtk.AttachOptions.FILL,
                                       yoptions=Gtk.AttachOptions.FILL)
-            oLabel = Gtk.Label(label='%d' % iCardRow)
+            oLabel = Gtk.Label('%d' % iCardRow)
             iNumRows = len([x for x in self.aAllChoices if
                             sum(x) == iCardRow])
             iTopRow = iBottomRow + 2 * iNumRows
@@ -396,15 +401,15 @@ class BaseDrawProbPlugin(BasePlugin):
                     fProbAccum = _hyper_prob_at_least(aThisDraw, iNumDraws,
                                                       aCardCounts,
                                                       self.iTotal) * 100
-                    oResLabel = Gtk.Label(label='%3.2f (%3.2f)' % (fProbAccum,
+                    oResLabel = Gtk.Label('%3.2f (%3.2f)' % (fProbAccum,
                                                              fProbExact))
                 else:
-                    oResLabel = Gtk.Label(label='%3.2f' % fProbExact)
+                    oResLabel = Gtk.Label('%3.2f' % fProbExact)
             else:
                 if bZero:
-                    oResLabel = Gtk.Label(label='all cards drawn')
+                    oResLabel = Gtk.Label('all cards drawn')
                 else:
-                    oResLabel = Gtk.Label(label='')
+                    oResLabel = Gtk.Label('')
             iTableCol = 2 * iCol + 4 + iOffset
             self.oResultsTable.attach(oResLabel, iTableCol, iTableCol + 1,
                                       iTableRow, iTableRow + 1)
@@ -422,15 +427,6 @@ class BaseDrawProbPlugin(BasePlugin):
         for oItem, iCount in zip(aSelectOrder, aThisRow):
             sLabel += u'%d \u00D7 %s\n' % (iCount, oItem[0].name)
         return sLabel
-
-    def _set_initial_values(self):
-        # We don't expect most users to override this, but
-        # it's potentially required
-        """Look 15 cards into the deck by default, seems good start"""
-        self.iMax = min(15, self.iTotal - self.iOpeningDraw)
-        self.iDrawStep = 1  # Increments to use in table
-        self.aAllChoices = _gen_choice_list(self.dSelectedCounts)
-        self.iCardsToDraw = min(3, self.iSelectedCount)
 
     # subclasses will override these to do the right thing for the card game
     def _check_selection(self, aSelectedCards):
@@ -463,3 +459,122 @@ class BaseDrawProbPlugin(BasePlugin):
     def _complain_size(self):
         """Suitable complaint if the deck we're drawing from is too small"""
         raise NotImplementedError("Implement _complain_size")
+
+
+class TestProbability(TestCase):
+    """Simple tests of the probability functions"""
+    # This is mostly to catch any errors introduced in refactoring or
+    # the like - we don't actually expect the underlying maths to
+    # stop working
+
+    # We don't test any of the gui stuff, because that is hard
+    # to do while staying with the base module and is best
+    # done on an implementation level
+
+    def test_choose(self):
+        # check the special case
+        self.assertEqual(_choose(0, 5), 1)
+        self.assertEqual(_choose(0, 3), 1)
+
+        # Check some random choices
+        self.assertEqual(_choose(5, 10), 252)
+        self.assertEqual(_choose(3, 10), 120)
+        self.assertEqual(_choose(3, 15), 455)
+        self.assertEqual(_choose(5, 12), 792)
+
+    def test_hyper_prob_at_least(self):
+        aFound = [1, 1]
+        aObjects = [5, 6]
+        # Test a few different options
+        self.assertAlmostEqual(_hyper_prob_at_least(aFound, 3, aObjects, 15),
+                               0.560439560)
+        self.assertAlmostEqual(_hyper_prob_at_least(aFound, 2, aObjects, 15),
+                               0.285714285)
+        self.assertAlmostEqual(_hyper_prob_at_least(aFound, 4, aObjects, 12),
+                               0.898989898)
+        aFound = [1, 2, 1]
+        aObjects = [5, 6, 4]
+        self.assertAlmostEqual(_hyper_prob_at_least(aFound, 4, aObjects, 16),
+                               0.164835164)
+        # Test error handling
+        # Incompatible lengths
+        aFound = []
+        aObjects = [1, 1]
+        with self.assertRaises(RuntimeError):
+            _hyper_prob_at_least(aFound, 1, aObjects, 5)
+        # Negative totals
+        aFound = [-1, 0]
+        with self.assertRaises(RuntimeError):
+            _hyper_prob_at_least(aFound, 3, aObjects, 5)
+        aFound = [1, 1]
+        aObjects = [-1, -1]
+        with self.assertRaises(RuntimeError):
+            _multi_hyper_prob(aFound, 3, aObjects, 5)
+
+    def test_get_choice_list(self):
+        DummyCard = namedtuple('DummyCard', ['name'])
+
+        dCounts = {
+            DummyCard(name='CardA'): 1,
+            DummyCard(name='CardB'): 1,
+            DummyCard(name='CardC'): 1,
+        }
+        self.assertListEqual(
+            _gen_choice_list(dCounts),
+            [
+               [0, 0, 0],
+               [0, 0, 1],
+               [0, 1, 0],
+               [1, 0, 0],
+               [0, 1, 1],
+               [1, 0, 1],
+               [1, 1, 0],
+               [1, 1, 1]
+            ])
+        dCounts = {
+            DummyCard(name='CardA'): 3,
+            DummyCard(name='CardB'): 1,
+            DummyCard(name='CardC'): 2,
+        }
+        self.assertListEqual(
+            _gen_choice_list(dCounts),
+            [
+                [0, 0, 0],
+                [0, 0, 1],
+                [0, 1, 0],
+                [1, 0, 0],
+                [0, 1, 1],
+                [0, 2, 0],
+                [1, 0, 1],
+                [1, 1, 0],
+                [2, 0, 0],
+                [0, 2, 1],
+                [1, 1, 1],
+                [1, 2, 0],
+                [2, 0, 1],
+                [2, 1, 0],
+                [3, 0, 0],
+                [1, 2, 1],
+                [2, 1, 1],
+                [2, 2, 0],
+                [3, 0, 1],
+                [3, 1, 0],
+                [2, 2, 1],
+                [3, 1, 1],
+                [3, 2, 0],
+                [3, 2, 1],
+            ])
+        dCounts = {
+            DummyCard(name='CardA'): 1,
+            DummyCard(name='CardB'): 3,
+            DummyCard(name='CardC'): 4,
+            DummyCard(name='CardD'): 2,
+        }
+        result = _gen_choice_list(dCounts)
+        # We don't test all possiblities to keep the test length sane
+        self.assertIn([0, 0, 0, 0], result)
+        self.assertIn([4, 3, 1, 1], result)
+        self.assertIn([4, 3, 2, 1], result)
+        self.assertIn([4, 1, 1, 1], result)
+        self.assertIn([0, 2, 1, 0], result)
+        self.assertIn([1, 3, 1, 0], result)

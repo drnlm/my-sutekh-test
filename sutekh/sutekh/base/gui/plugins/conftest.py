@@ -9,6 +9,10 @@
 # checks in the base plugins
 import pytest
 
+# Avoid gtk issues when running subsets of the tests
+import gi
+gi.require_version("Gtk", "3.0")
+
 # This just adds all the plugin files in this directory
 # to the test list - we rely on unittest discovery to then
 # do the right thing
