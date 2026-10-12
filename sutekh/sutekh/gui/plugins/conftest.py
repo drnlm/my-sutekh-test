@@ -5,6 +5,10 @@
 # the non-plugin tests.
 import pytest
 
+# Avoid gtk issues when running subsets of the tests
+import gi
+gi.require_version("Gtk", "3.0")
+
 # We need to have the test fixtures imported here as well
 # so they will be used in the plugin tests.
 from sutekh.tests.conftest import db_setup, clean_db
