@@ -42,7 +42,7 @@ jobs:
     - name: Install APT Dependencies
       run: |
         sudo apt-get -y -q update
-        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb
+        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb gir1.2-poppler-0.18
     - name: Install PIP Dependencies
       run: |
         pip install mock pytest ply sqlobject configobj 'PyGObject<3.50' pycairo psycopg2 importlib_resources
@@ -92,7 +92,7 @@ jobs:
     - name: Install APT Dependencies
       run: |
         sudo apt-get -y -q update
-        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb
+        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb gir1.2-poppler-0.18
     - name: Install PIP Dependencies
       run: |
         pip install mock pytest ply sqlobject configobj 'PyGObject<3.50' pycairo mysql-connector importlib_resources
@@ -124,7 +124,7 @@ jobs:
     - name: Install APT Dependencies
       run: |
         sudo apt-get -y -q update
-        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb
+        sudo apt-get -y -q install gir1.2-gtk-3.0 python3-gi librsvg2-common libgirepository1.0-dev pkg-config libcairo2-dev xvfb gir1.2-poppler-0.18
     - name: Install PIP Dependencies
       run: |
         pip install mock pytest ply sqlobject configobj 'PyGObject<3.50' pycairo importlib_resources
