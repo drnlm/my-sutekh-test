@@ -251,8 +251,7 @@ jobs:
 
   sqlite-macos-arm:
 
-    # We use macos-14 to get an arm runner
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v7
     - name: Install Python
